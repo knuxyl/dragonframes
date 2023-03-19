@@ -92,7 +92,7 @@ function f:InitializeOptions()
 	})
 	local txtTexture = self.panel:CreateFontString("txtTexture", "OVERLAY", "GameFontNormal");
 	UIDropDownMenu_SetWidth(ddTexture, 140)
-	ddTexture:SetPoint("TOPLEFT", logo, "BOTTOMLEFT", -16, -8)
+	ddTexture:SetPoint("TOPLEFT", logo, "BOTTOMLEFT", -16, -16)
 	txtTexture:SetPoint("LEFT", ddTexture, "RIGHT", -10, 4)
 	txtTexture:SetText("Texture Source")
 	local cbPlayer = CreateFrame("CheckButton", "gcbPlayer", self.panel, "ChatConfigCheckButtonTemplate")
