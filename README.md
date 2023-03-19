@@ -5,4 +5,4 @@ Statically change your player's and/or your target's portrait frame to a rare/el
 
 Includes ai-upscaled default and dragonflight textues.
 
-![Options](Options.png?raw=true)
+![Options](options.png?raw=true)
