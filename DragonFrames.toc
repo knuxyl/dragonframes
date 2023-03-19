@@ -1,0 +1,6 @@
+##Interface: 30300
+##Title: DragonFrames
+##Notes: Statically change your player's and/or your target's portrait frame to a dragon, or dynamically by level.
+##Version: 1.0.0
+##SavedVariables: settings
+DragonFrames.lua
