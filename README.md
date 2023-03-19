@@ -18,3 +18,8 @@ Version 1.1.0 (3/19/2023)
 -Fixed Dragonflight frames level indicator
 
 -Minor tweaks to UI positioning
+
+
+Version 1.2.0 (3/19/2023)
+
+-Removed some debug code
