@@ -4,7 +4,7 @@ f:RegisterEvent("PLAYER_LEVEL_UP")
 f:RegisterEvent("PLAYER_TARGET_CHANGED")
 local title = "DragonFrames"
 local author = "knuxyl"
-local version = "1.0.0 (3/18/2023)"
+local version = "1.1.0 (3/19/2023)"
 local defaults = {
 	dynamic = { true, true },
 	target = { false, false, true, true, 4, 4 },
