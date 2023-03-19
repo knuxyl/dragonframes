@@ -6,3 +6,10 @@ Statically change your player's and/or your target's portrait frame to a rare/el
 Includes ai-upscaled default and dragonflight textues.
 
 ![Options](options.png?raw=true)
+
+Version 1.0.0 (3/18/2023)
+-Initial Release
+
+Version 1.1.0 (3/19/2023)
+-Fixed Dragonflight frames level indicator
+-Minor tweaks to UI positioning
