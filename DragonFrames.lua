@@ -308,17 +308,7 @@ end
 f:SetScript("OnEvent", f.OnEvent)
 SLASH_DragonFrames1 = "/dragonframes"
 SlashCmdList["DragonFrames"] = function(value)
-	if value == "a" then--------------------------------------------------------------------
-		PlayerFrameTexture:SetTexture("Interface\\AddOns\\DragonFrames\\textures\\new-elite.blp")
-	elseif value == "b" then
-		settings = defaults
-	elseif value == "c" then
-		StaticFrame()
-	elseif value == "d" then
-		DynamicFrame()
-	else
-		InterfaceOptionsFrame_OpenToCategory(f.panel)
-	end
+	InterfaceOptionsFrame_OpenToCategory(f.panel)
 end
 function InputValidation(input, text, x, y)
 	local n = input:GetText()
