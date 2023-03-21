@@ -4,33 +4,112 @@ f:RegisterEvent("PLAYER_LEVEL_UP")
 f:RegisterEvent("PLAYER_TARGET_CHANGED")
 local title = "DragonFrames"
 local author = "knuxyl"
-local version = "1.1.0 (3/19/2023)"
+local version = "2.0.0 (3/20/2023)"
+local command = "dragonframes"
+local target_texture
+local player_texture
+local player_settings
+local targetnpc_settings
+local targetplayer_Settings
+local player_p, player_rt, player_rp, player_rx, player_ry = PlayerFrame:GetPoint()
 local defaults = {
-	dynamic = { true, true },
-	target = { false, false, true, true, 4, 4 },
-	source = 2,
-	portrait = { 1, 1 },
-	levels = { { 9, 29, 59, 255 }, { 5, 10, 15, 20 } }
+	["enabled"] = true,
+	["player"] = {
+		["enabled" ] = true,
+		["dynamic"] = false,
+		["texture"] = "High Resolution",
+		["frame"] = "Elite",
+		["levels"] = { 
+			["Normal"] = { 1, 9 },
+			["Rare"] = { 10, 29 },
+			["RareElite"] = { 30, 59 },
+			["Elite"] = { 60, 255 }
+		},
+		["move"] = true
+	},
+	["target_npc"] = {
+		["enabled"] = true,
+		["target"] = {
+			["Friendly"] = true,
+			["Neutral"] = true,
+			["Hostile"] = true
+		},
+		["keep"] = true,
+		["dynamic"] = true,
+		["based"] = "Levels above player",
+		["texture"] = "High Resolution",
+		["frame"] = "Rare",
+		["unknown"] = {
+			["enabled"] = true,
+			["frame"] = "Elite"
+		},
+		["levels"] = { 
+			["Normal"] = { 1, 3 },
+			["Rare"] = { 4, 6 },
+			["RareElite"] = { 7, 9 },
+			["Elite"] = { 10, 255 }
+		}
+	},
+	["target_player"] = {
+		["enabled"] = true,
+		["target"] = {
+			["Friendly"] = true,
+			["Neutral"] = true,
+			["Hostile"] = true
+		},
+		["keep"] = true,
+		["dynamic"] = true,
+		["based"] = "Levels above player",
+		["texture"] = "High Resolution",
+		["frame"] = "Rare",
+		["unknown"] = {
+			["enabled"] = true,
+			["frame"] = "Elite"
+		},
+		["levels"] = { 
+			["Normal"] = { 1, 3 },
+			["Rare"] = { 4, 6 },
+			["RareElite"] = { 7, 9 },
+			["Elite"] = { 10, 255 }
+		}
+	}
 }
-local strings = {"Normal", "Rare", "RareElite", "Elite", "Disabled", "Hostile Only", "Friendly Only", "Both", "Original", "High Resolution", "Dragonflight"}
 local textures = {
-	{
-		"Interface\\TargetingFrame\\UI-TargetingFrame.blp",
-		"Interface\\TargetingFrame\\UI-TargetingFrame-Rare.blp",
-		"Interface\\TargetingFrame\\UI-TargetingFrame-Rare-Elite.blp",
-		"Interface\\TargetingFrame\\UI-TargetingFrame-Elite.blp"
+	["Original"] = {
+		["Normal"] = "Interface\\TargetingFrame\\UI-TargetingFrame.blp",
+		["Rare"] = "Interface\\TargetingFrame\\UI-TargetingFrame-Rare.blp",
+		["RareElite"] = "Interface\\TargetingFrame\\UI-TargetingFrame-Rare-Elite.blp",
+		["Elite"] = "Interface\\TargetingFrame\\UI-TargetingFrame-Elite.blp"
 	},
-	{
-		"Interface\\AddOns\\DragonFrames\\textures\\normal.blp",
-		"Interface\\AddOns\\DragonFrames\\textures\\rare.blp",
-		"Interface\\AddOns\\DragonFrames\\textures\\rareelite.blp",
-		"Interface\\AddOns\\DragonFrames\\textures\\elite.blp"
+	["High Resolution"] = {
+		["Normal"] = "Interface\\AddOns\\DragonFrames\\textures\\highresolution\\UI-TargetingFrame.blp",
+		["Rare"] = "Interface\\AddOns\\DragonFrames\\textures\\highresolution\\UI-TargetingFrame-Rare.blp",
+		["RareElite"] = "Interface\\AddOns\\DragonFrames\\textures\\highresolution\\UI-TargetingFrame-Rare-Elite.blp",
+		["Elite"] = "Interface\\AddOns\\DragonFrames\\textures\\highresolution\\UI-TargetingFrame-Elite.blp"
 	},
-	{
-		"Interface\\AddOns\\DragonFrames\\textures\\normal.blp",
-		"Interface\\AddOns\\DragonFrames\\textures\\new-rare.blp",
-		"Interface\\AddOns\\DragonFrames\\textures\\new-rareelite.blp",
-		"Interface\\AddOns\\DragonFrames\\textures\\new-elite.blp"
+	["Dragonflight"] = {
+		["Normal"] = "Interface\\AddOns\\DragonFrames\\textures\\dragonflight\\UI-TargetingFrame.blp",
+		["Rare"] = "Interface\\AddOns\\DragonFrames\\textures\\dragonflight\\UI-TargetingFrame-Rare.blp",
+		["RareElite"] = "Interface\\AddOns\\DragonFrames\\textures\\dragonflight\\UI-TargetingFrame-Rare-Elite.blp",
+		["Elite"] = "Interface\\AddOns\\DragonFrames\\textures\\dragonflight\\UI-TargetingFrame-Elite.blp"
+	},
+	["Original Black"] = {
+		["Normal"] = "Interface\\AddOns\\DragonFrames\\textures\\black\\UI-TargetingFrame.blp",
+		["Rare"] = "Interface\\AddOns\\DragonFrames\\textures\\black\\UI-TargetingFrame-Rare.blp",
+		["RareElite"] = "Interface\\AddOns\\DragonFrames\\textures\\black\\UI-TargetingFrame-Rare-Elite.blp",
+		["Elite"] = "Interface\\AddOns\\DragonFrames\\textures\\black\\UI-TargetingFrame-Elite.blp"
+	},
+	["Dragonflight Black"] = {
+		["Normal"] = "Interface\\AddOns\\DragonFrames\\textures\\dfblack\\UI-TargetingFrame.blp",
+		["Rare"] = "Interface\\AddOns\\DragonFrames\\textures\\dfblack\\UI-TargetingFrame-Rare.blp",
+		["RareElite"] = "Interface\\AddOns\\DragonFrames\\textures\\dfblack\\UI-TargetingFrame-Rare-Elite.blp",
+		["Elite"] = "Interface\\AddOns\\DragonFrames\\textures\\dfblack\\UI-TargetingFrame-Elite.blp"
+	},
+	["Custom"] = {
+		["Normal"] = "Interface\\AddOns\\DragonFrames\\textures\\custom\\UI-TargetingFrame.tga",
+		["Rare"] = "Interface\\AddOns\\DragonFrames\\textures\\custom\\UI-TargetingFrame-Rare.tga",
+		["RareElite"] = "Interface\\AddOns\\DragonFrames\\textures\\custom\\UI-TargetingFrame-Rare-Elite.tga",
+		["Elite"] = "Interface\\AddOns\\DragonFrames\\textures\\custom\\UI-TargetingFrame-Elite.tga"
 	}
 }
 function f:OnEvent(event, ...)
@@ -38,410 +117,621 @@ function f:OnEvent(event, ...)
 end
 function f:ADDON_LOADED(event, name)
 	if name == "DragonFrames" then
-		if settings == nil then
-			settings = defaults
+		if s == nil then
+			s = defaults
 		end
-		if settings.dynamic[1] then
-			f:RegisterEvent("PLAYER_LEVEL_UP")
-		end
+		player_texture = PlayerFrameTexture:GetTexture()
 		f:InitializeOptions()
 		f:UnregisterEvent("ADDON_LOADED")
+		f:UpdatePlayer()
 	end
 end
 function f:PLAYER_TARGET_CHANGED()
-	UpdateTarget()
+	if UnitExists("target") then
+		target_texture = TargetFrame.borderTexture:GetTexture()
+	else
+		target_texture = nil
+	end
+	f:UpdateTarget()
 end
-function f:PLAYER_LEVEL_UP(event, level)
-	UpdatePlayer(level)
+function f:PLAYER_LEVEL_UP(event, l)
+	f:UpdatePlayer(l)
 end
 function f:InitializeOptions()
 	self.panel = CreateFrame("Frame")
 	self.panel.name = "DragonFrames"
-	local logo = self.panel:CreateTexture("logo", "ARTWORK")
-	logo:SetTexture("Interface\\AddOns\\DragonFrames\\textures\\logo.blp")
-	logo:SetSize(80, 80)
-	logo:SetPoint("TOPLEFT", self.panel, "TOPLEFT", 8, 0)
-	logo:SetTexCoord(1, 0, 0, 1)
-	local logoend = self.panel:CreateTexture("logoend", "ARTWORK")
-	logoend:SetTexture("Interface\\AddOns\\DragonFrames\\textures\\logo.blp")
-	logoend:SetSize(80, 80)
-	logoend:SetPoint("TOPRIGHT", self.panel, "TOPRIGHT", -8, 0)
-	local txtTitle = self.panel:CreateFontString("gtxtVersion", "OVERLAY", "GameFontNormal");
-	txtTitle:SetPoint("CENTER", self.panel, "CENTER")
-	txtTitle:SetPoint("TOP", self.panel, "TOP", 0, -8)
-	txtTitle:SetText(title)
-	txtTitle:SetTextHeight(26)
-	local txtVersion = self.panel:CreateFontString("gtxtVersion", "OVERLAY", "GameFontNormal");
-	txtVersion:SetPoint("CENTER", self.panel, "CENTER")
-	txtVersion:SetPoint("TOP", txtTitle, "BOTTOM", 0, -4)
-	txtVersion:SetText("version "..version)
-	local txtAuthor = self.panel:CreateFontString("gtxtAuthor", "OVERLAY", "GameFontNormal");
-	txtAuthor:SetPoint("CENTER", self.panel, "CENTER")
-	txtAuthor:SetPoint("TOP", txtVersion, "BOTTOM", 0, -4)
-	txtAuthor:SetText("by "..author)
-	local ddTexture = createDropdown({name = "gddTexture", parent = self.panel, items = {"Original", "High Resolution", "Dragonflight"}, defaultVal = strings[settings.source + 8],
-	changeFunc = function(self)
-		for i, v in ipairs(strings) do
-			if self.value == v then
-				settings.source = i - 8
-				break
+	local scrollFrame = CreateFrame("ScrollFrame", "gScrollFrame", self.panel, "UIPanelScrollFrameTemplate")
+	scrollFrame:SetPoint("TOPLEFT", 3, -4)
+	scrollFrame:SetPoint("BOTTOMRIGHT", -27, 4)
+	local scrollChild = CreateFrame("Frame")
+	scrollFrame:SetScrollChild(scrollChild)
+	scrollChild:SetWidth(InterfaceOptionsFramePanelContainer:GetWidth()-18)
+	scrollChild:SetHeight(1) 
+	local function Button(name, parent, text, size, point, m)
+		local b = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
+		if text then b:SetText(text) end
+		if size then b:SetSize(size[1], size[2]) end
+		if point then for i, v in ipairs(point) do
+			b:SetPoint(point[i][1], point[i][2], point[i][3], point[i][4], point[i][5])
+		end end
+		if m then b:SetScript("OnClick", m) end
+		return b
+	end
+	local function Text(name, parent, text, size, color, point)
+		local t = parent:CreateFontString(name, "OVERLAY", "GameFontNormal")
+		if text then t:SetText(text) end
+		if size then t:SetTextHeight(size) end
+		if point then for i, v in ipairs(point) do
+			t:SetPoint(point[i][1], point[i][2], point[i][3], point[i][4], point[i][5])
+		end end
+		if color then t:SetTextColor(color[1], color[2], color[3], color[4]) end
+		return t
+	end
+	local function CheckBox(name, parent, default, label, tooltip, point, m)
+		local c = CreateFrame("CheckButton", name, parent, "ChatConfigCheckButtonTemplate")
+		c:SetChecked(default)
+		if label then local l = Text(name:sub(2, 1).."gt"..name:sub(2), c, label, nil, {1, 1, 1, 1}, {{"LEFT", c, "RIGHT", 4, 0}}) end
+		if tooltip then c.tooltip = tooltip end
+		if point then for i, v in ipairs(point) do
+			c:SetPoint(point[i][1], point[i][2], point[i][3], point[i][4], point[i][5])
+		end end
+		c:SetHitRectInsets(0, 0, 0, 0)
+		if m then c:SetScript("OnClick", m) end
+		return c
+	end
+	local function EditBox(name, parent, point, m)
+		local e = CreateFrame("EditBox", name, parent, "InputBoxTemplate")
+		if point then for i, v in ipairs(point) do
+			e:SetPoint(point[i][1], point[i][2], point[i][3], point[i][4], point[i][5])
+		end end
+		if m then e:SetScript("OnTextChanged", m) end
+		e:SetSize(48, 24)
+		e:SetAutoFocus(false)
+		e:SetNumeric(true)
+		e:SetMaxLetters(3)
+		return e
+	end
+	local function DropDown(name, parent, label, items, default, size, point, m)
+		local d = CreateFrame("Frame", name, parent, "UIDropDownMenuTemplate")
+		UIDropDownMenu_SetText(d, default)
+		UIDropDownMenu_Initialize(d, function(self)
+			local i = UIDropDownMenu_CreateInfo()
+			for j, v in ipairs(items) do
+				i.text = v
+				i.checked = false
+				i.menuList = key
+				i.hasArrow = false
+				i.func = function(b)
+					UIDropDownMenu_SetSelectedValue(d, b.value)
+					UIDropDownMenu_SetText(d, b.value)
+					m()
+				end
+				UIDropDownMenu_AddButton(i)
+			end
+		end)
+		if size then UIDropDownMenu_SetWidth(d, size) end
+		if default then UIDropDownMenu_SetSelectedValue(d, default) end
+		if point then for i, v in ipairs(point) do
+			d:SetPoint(point[i][1], point[i][2], point[i][3], point[i][4], point[i][5])
+		end end
+		if label then local l = Text(name:sub(2, 1).."gt"..name:sub(2), d, label, nil, {1, 1, 1, 1}, {{"LEFT", d, "RIGHT", -12, 0}}) end
+		return d
+	end
+	local function Levels(v, label, t, text, i)
+		v = tonumber(v)
+		if v and v ~= "" then
+			if i == 2 and v < s[t].levels[text][1] then
+				v = s[t].levels[text][1]
+			elseif i == 1 and v > s[t].levels[text][2] then
+				v = s[t].levels[text][2]
+			end
+			s[t].levels[text][i] = v
+			if s[t].based == "Levels above player" then
+				local p = UnitLevel("player")
+				label:SetText(text.." ("..s[t].levels[text][1].."-"..s[t].levels[text][2]..")".." Levels ("..s[t].levels[text][1] + p.."-"..s[t].levels[text][2] + p..")")
+			else
+				label:SetText(text.." ("..s[t].levels[text][1].."-"..s[t].levels[text][2]..")")
 			end
 		end
-		UpdateTextures()
 	end
-	})
-	local txtTexture = self.panel:CreateFontString("txtTexture", "OVERLAY", "GameFontNormal");
-	UIDropDownMenu_SetWidth(ddTexture, 140)
-	ddTexture:SetPoint("TOPLEFT", logo, "BOTTOMLEFT", -16, -16)
-	txtTexture:SetPoint("LEFT", ddTexture, "RIGHT", -10, 4)
-	txtTexture:SetText("Texture Source")
-	local cbPlayer = CreateFrame("CheckButton", "gcbPlayer", self.panel, "ChatConfigCheckButtonTemplate")
-	cbPlayer:SetScript("OnClick", function(self)
-		if self:GetChecked() then
-			UIDropDownMenu_DisableDropDown(gddPlayer)
-			settings.dynamic[1] = true
-			f:RegisterEvent("PLAYER_LEVEL_UP")
-		else
-			UIDropDownMenu_EnableDropDown(gddPlayer)
-			settings.dynamic[1] = false
-			f:UnregisterEvent("PLAYER_LEVEL_UP")
+	local tTitle = Text("gtTitle", scrollChild, title, 24, nil, {{"TOPLEFT", scrollChild, "TOPLEFT", 8, -8}})
+	local tVersion = Text("gtVersion", scrollChild, "Version: "..version, nil, {1, 1, 1, 1}, {{"TOPLEFT", gtTitle, "BOTTOMLEFT"}})
+	local tAuthor = Text("gtAuthor", scrollChild, "Author: "..author, nil, {1, 1, 1, 1}, {{"TOPLEFT", gtVersion, "BOTTOMLEFT"}})
+	local cAddonEnabled = CheckBox("gcAddonEnabled", scrollChild, s.enabled, "Enable Addon", "Enable Addon", {{"TOPLEFT", gtAuthor, "BOTTOMLEFT", 0, -4}}, function()
+		s.enabled = gcAddonEnabled:GetChecked()
+		f:UpdatePlayer()
+		f:UpdateTarget()
+		if not s.enabled then
+			PlayerFrameTexture:SetTexture(player_texture)
+			if target_texture then
+				TargetFrame.borderTexture:SetTexture(target_texture)
+			end
 		end
-		UIDropDownMenu_SetText(gddPlayer, strings[settings.portrait[1]])
-		UpdatePlayer()
 	end)
-	local ddPlayer = createDropdown({name = "gddPlayer", parent = self.panel, items = {"Normal", "Rare", "RareElite", "Elite"}, defaultVal = strings[settings.portrait[1]],
-	changeFunc = function(self)
-		for i, v in ipairs(strings) do
-			if self.value == v then
-				settings.portrait[1] = i
-				break
-			end
+	local bPlayer = CreateFrame("Button", "gbPlayer", scrollChild, "GameMenuButtonTemplate")
+	gbPlayer:SetScript("OnClick", function()
+		for i, v in ipairs(player_settings) do
+			v:Show()
 		end
-		UpdateTextures()
-	end
-	})
-	cbPlayer:SetChecked(settings.dynamic[1])
-	if settings.dynamic[1] then
-		UIDropDownMenu_DisableDropDown(ddPlayer)
-	else
-		UIDropDownMenu_EnableDropDown(ddPlayer)
-	end
-	local txtPlayer = self.panel:CreateFontString("gtxtPlayer", "OVERLAY", "GameFontNormal");
-	local txtPlayerDynamic = self.panel:CreateFontString("gtxtPlayerDynamic", "OVERLAY", "GameFontNormal");
+		for i, v in ipairs(targetnpc_settings) do
+			v:Hide()
+		end
+		for i, v in ipairs(targetplayer_settings) do
+			v:Hide()
+		end
+	end)
+	gbPlayer:SetSize(80, 32)
+	gbPlayer:SetText("Player")
+	gbPlayer:SetPoint("TOPLEFT", gcAddonEnabled, "BOTTOMLEFT", 0, 2)
+	local bTargetNPC = CreateFrame("Button", "gbTargetNPC", scrollChild, "GameMenuButtonTemplate")
+	gbTargetNPC:SetScript("OnClick", function()
+		for i, v in ipairs(player_settings) do
+			v:Hide()
+		end
+		for i, v in ipairs(targetnpc_settings) do
+			v:Show()
+		end
+		for i, v in ipairs(targetplayer_settings) do
+			v:Hide()
+		end
+	end)
+	gbTargetNPC:SetSize(100, 32)
+	gbTargetNPC:SetText("Target NPC")
+	gbTargetNPC:SetPoint("LEFT", gbPlayer, "RIGHT")
+	local bTargetPlayer = CreateFrame("Button", "gbTargetPlayer", scrollChild, "GameMenuButtonTemplate")
+	gbTargetPlayer:SetScript("OnClick", function()
+		for i, v in ipairs(player_settings) do
+			v:Hide()
+		end
+		for i, v in ipairs(targetnpc_settings) do
+			v:Hide()
+		end
+		for i, v in ipairs(targetplayer_settings) do
+			v:Show()
+		end
+	end)
+	gbTargetPlayer:SetSize(100, 32)
+	gbTargetPlayer:SetText("Target Player")
+	gbTargetPlayer:SetPoint("LEFT", gbTargetNPC, "RIGHT")
+	local bReset = CreateFrame("Button", "gbReset", scrollChild, "GameMenuButtonTemplate")
+	gbReset:SetScript("OnClick", function()
+		s = defaults
+		ReloadUI()
+	end)
+	gbReset:SetSize(60, 32)
+	gbReset:SetText("Reset")
+	gbReset:SetPoint("LEFT", gbTargetPlayer, "RIGHT")
+	local tPlayer = Text("gtPlayer", scrollChild, "Player Settings", 18, nil, {{"TOPLEFT", gbPlayer, "BOTTOMLEFT", 0, -8}})
+	local cPlayerEnabled = CheckBox("gcPlayerEnabled", scrollChild, s.player.enabled, "Enabled", "Enable portrait for player", {{"TOPLEFT", gtPlayer, "BOTTOMLEFT", 0, -8}}, function()
+		s.player.enabled = gcPlayerEnabled:GetChecked()
+		f:UpdatePlayer()
+		if not s.player.enabled then
+			PlayerFrameTexture:SetTexture(player_texture)
+		end
+	end)
+	local cPlayerDynamic = CheckBox("gcPlayerDynamic", scrollChild, s.player.dynamic, "Dynamic", "Change portrait dynamically based on level", {{"TOPLEFT", gcPlayerEnabled, "BOTTOMLEFT"}}, function()
+		s.player.dynamic = gcPlayerDynamic:GetChecked()
+		f:UpdatePlayer()
+		UIDropDownMenu_SetSelectedValue(gdPlayerStatic, s.player.frame)
+	end)
+	local cPlayerMove = CheckBox("gcPlayerMove", scrollChild, s.player.move, "Move player portrait", "Move the player portrait to the right to allow full frame to be seen", {{"TOPLEFT", gcPlayerDynamic, "BOTTOMLEFT"}}, function()
+		s.player.move = gcPlayerMove:GetChecked()
+		f:MovePortrait()
+	end)
+	local dPlayerTextures = DropDown("gdPlayerTextures", scrollChild, "Texture source", {"Original", "High Resolution", "Dragonflight", "Original Black", "Dragonflight Black", "Custom"}, s.player.texture, 140, {{"TOPLEFT", gcPlayerMove, "BOTTOMLEFT", -16, -4}}, function()
+		s.player.texture = UIDropDownMenu_GetSelectedValue(gdPlayerTextures)
+		f:UpdatePlayer()
+	end)
+	local dPlayerStatic = DropDown("gdPlayerStatic", scrollChild, "Player frame", {"Normal", "Rare", "RareElite", "Elite"}, s.player.frame, 140, {{"TOPLEFT", gdPlayerTextures, "BOTTOMLEFT", 0, 0}}, function()
+		s.player.frame = UIDropDownMenu_GetSelectedValue(gdPlayerStatic)
+		s.player.dynamic = false
+		gcPlayerDynamic:SetChecked(false)
+		f:UpdatePlayer()
+	end)
+	local tPlayerLevels = Text("gtPlayerLevels", scrollChild, "Dynamic Settings", 14, nil, {{"TOPLEFT", gdPlayerStatic, "BOTTOMLEFT", 16, -4}})
+	local ePlayerNormal1 = EditBox("gePlayerNormal1", scrollChild, {{"TOPLEFT", gtPlayerLevels, "BOTTOMLEFT", 6, -6}}, function()
+		Levels(gePlayerNormal1:GetText(), gtPlayerNormal, "player", "Normal", 1)
+		f:UpdatePlayer()
+	end)
+	local ePlayerNormal2 = EditBox("gePlayerNormal2", scrollChild, {{"LEFT", gePlayerNormal1, "RIGHT", 8, 0}}, function()
+		Levels(gePlayerNormal2:GetText(), gtPlayerNormal, "player", "Normal", 2)
+		f:UpdatePlayer()
+	end)
+	local tPlayerNormal = Text("gtPlayerNormal", scrollChild, "Normal ("..s.player.levels["Normal"][1].."-"..s.player.levels["Normal"][2]..")", nil, {1, 1, 1, 1}, {{"LEFT", ePlayerNormal2, "RIGHT", 4, 0}})
+	local ePlayerRare1 = EditBox("gePlayerRare1", scrollChild, {{"TOPLEFT", gePlayerNormal1, "BOTTOMLEFT"}}, function()
+		Levels(gePlayerRare1:GetText(), gtPlayerRare, "player", "Rare", 1)
+		f:UpdatePlayer()
+	end)
+	local ePlayerRare2 = EditBox("gePlayerRare2", scrollChild, {{"LEFT", gePlayerRare1, "RIGHT", 8, 0}}, function()
+		Levels(gePlayerRare2:GetText(), gtPlayerRare, "player", "Rare", 2)
+		f:UpdatePlayer()
+	end)
+	local tPlayerRare = Text("gtPlayerRare", scrollChild, "Rare ("..s.player.levels["Rare"][1].."-"..s.player.levels["Rare"][2]..")", nil, {1, 1, 1, 1}, {{"LEFT", ePlayerRare2, "RIGHT", 4, 0}})
+
+	local ePlayerRareElite1 = EditBox("gePlayerRareElite1", scrollChild, {{"TOPLEFT", gePlayerRare1, "BOTTOMLEFT"}}, function()
+		Levels(gePlayerRareElite1:GetText(), gtPlayerRareElite, "player", "RareElite", 1)
+		f:UpdatePlayer()
+	end)
+	local ePlayerRareElite2 = EditBox("gePlayerRareElite2", scrollChild, {{"LEFT", gePlayerRareElite1, "RIGHT", 8, 0}}, function()
+		Levels(gePlayerRareElite2:GetText(), gtPlayerRareElite, "player", "RareElite", 2)
+		f:UpdatePlayer()
+	end)
+	local tPlayerRareElite = Text("gtPlayerRareElite", scrollChild, "RareElite ("..s.player.levels["RareElite"][1].."-"..s.player.levels["RareElite"][2]..")", nil, {1, 1, 1, 1}, {{"LEFT", ePlayerRareElite2, "RIGHT", 4, 0}})
 	
-	local txtPlayerNormal = self.panel:CreateFontString("gtxtPlayerNormal", "OVERLAY", "GameFontNormal");
-	local edtPlayerNormal = CreateFrame("EditBox", "gedtPlayerNormal", self.panel, "InputBoxTemplate")
-	edtPlayerNormal:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtPlayerNormal, 1, 1)
-		UpdatePlayer()
+	local ePlayerElite1 = EditBox("gePlayerElite1", scrollChild, {{"TOPLEFT", gePlayerRareElite1, "BOTTOMLEFT"}}, function()
+		Levels(gePlayerElite1:GetText(), gtPlayerElite, "player", "Elite", 1)
+		f:UpdatePlayer()
 	end)
-	local txtPlayerRare = self.panel:CreateFontString("gtxtPlayerRare", "OVERLAY", "GameFontNormal");
-	local edtPlayerRare = CreateFrame("EditBox", "gedtPlayerRare", self.panel, "InputBoxTemplate")
-	edtPlayerRare:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtPlayerRare, 1, 2)
-		UpdatePlayer()
+	local ePlayerElite2 = EditBox("gePlayerElite2", scrollChild, {{"LEFT", gePlayerElite1, "RIGHT", 8, 0}}, function()
+		Levels(gePlayerElite2:GetText(), gtPlayerElite, "player", "Elite", 2)
+		f:UpdatePlayer()
 	end)
-	local txtPlayerRareElite = self.panel:CreateFontString("gtxtPlayerRareElite", "OVERLAY", "GameFontNormal");
-	local edtPlayerRareElite = CreateFrame("EditBox", "gedtPlayerRareElite", self.panel, "InputBoxTemplate")
-	edtPlayerRareElite:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtPlayerRareElite, 1, 3)
-		UpdatePlayer()
+	local tPlayerElite = Text("gtPlayerElite", scrollChild, "Elite ("..s.player.levels["Elite"][1].."-"..s.player.levels["Elite"][2]..")", nil, {1, 1, 1, 1}, {{"LEFT", ePlayerElite2, "RIGHT", 4, 0}})
+	local tTargetNPC = Text("gtTargetNPC", scrollChild, "Target NPC Settings", 18, nil, {{"TOPLEFT", gbPlayer, "BOTTOMLEFT", 0, -8}})
+	local cTargetNPCEnabled = CheckBox("gcTargetNPCEnabled", scrollChild, s.target_npc.enabled, "Enabled", "Enable portrait for target npc", {{"TOPLEFT", gtTargetNPC, "BOTTOMLEFT", 0, -8}}, function()
+		s.target_npc.enabled = gcTargetNPCEnabled:GetChecked()
+		f:UpdateTarget()
 	end)
-	local txtPlayerElite = self.panel:CreateFontString("gtxtPlayerElite", "OVERLAY", "GameFontNormal");
-	local edtPlayerElite = CreateFrame("EditBox", "gedtPlayerElite", self.panel, "InputBoxTemplate")
-	edtPlayerElite:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtPlayerElite, 1, 4)
-		UpdatePlayer()
+	local cTargetNPCDynamic = CheckBox("gcTargetNPCDynamic", scrollChild, s.target_npc.dynamic, "Dynamic", "Change portrait dynamically based on level", {{"TOPLEFT", gcTargetNPCEnabled, "BOTTOMLEFT"}}, function()
+		s.target_npc.dynamic = gcTargetNPCDynamic:GetChecked()
+		f:UpdateTarget()
+		UIDropDownMenu_SetSelectedValue(gdTargetNPCStatic, s.target_npc.frame)
 	end)
-	UIDropDownMenu_SetWidth(ddPlayer, 140)
-	cbPlayer:SetPoint("TOPLEFT", ddTexture, "BOTTOMLEFT", 16, 0)
-	txtPlayerDynamic:SetPoint("LEFT", cbPlayer, "RIGHT", 0, 2)
-	txtPlayerDynamic:SetText("Set dynamic player frame based on level")
-	txtPlayerNormal:SetPoint("TOPLEFT", cbPlayer, "BOTTOMLEFT", 0, -4)
-	txtPlayerNormal:SetText("Normal("..settings.levels[1][2]..")")
-	txtPlayerRare:SetPoint("LEFT", txtPlayerNormal, "RIGHT", 12, 0)
-	txtPlayerRare:SetText("Rare("..settings.levels[1][2]..")")
-	txtPlayerRareElite:SetPoint("LEFT", txtPlayerRare, "RIGHT", 12, 0)
-	txtPlayerRareElite:SetText("RareElite("..settings.levels[1][3]..")")	
-	txtPlayerElite:SetPoint("LEFT", txtPlayerRareElite, "RIGHT", 12, 0)
-	txtPlayerElite:SetText("Elite("..settings.levels[1][4]..")")	
-	edtPlayerNormal:SetPoint("TOPLEFT", txtPlayerNormal, "BOTTOMLEFT", 8, -8)
-	edtPlayerNormal:SetSize(40, 20)
-	edtPlayerNormal:SetAutoFocus(false)
-	edtPlayerNormal:SetNumeric(true)
-	edtPlayerNormal:SetMaxLetters(3)
-	edtPlayerRare:SetPoint("TOPLEFT", txtPlayerRare, "BOTTOMLEFT", 8, -8)
-	edtPlayerRare:SetSize(40, 20)
-	edtPlayerRare:SetAutoFocus(false)
-	edtPlayerRare:SetNumeric(true)
-	edtPlayerRare:SetMaxLetters(3)
-	edtPlayerRareElite:SetPoint("TOPLEFT", txtPlayerRareElite, "BOTTOMLEFT", 8, -8)
-	edtPlayerRareElite:SetSize(40, 20)
-	edtPlayerRareElite:SetAutoFocus(false)
-	edtPlayerRareElite:SetNumeric(true)
-	edtPlayerRareElite:SetMaxLetters(3)
-	edtPlayerElite:SetPoint("TOPLEFT", txtPlayerElite, "BOTTOMLEFT", 8, -8)
-	edtPlayerElite:SetSize(40, 20)
-	edtPlayerElite:SetAutoFocus(false)
-	edtPlayerElite:SetNumeric(true)
-	edtPlayerElite:SetMaxLetters(3)
-	ddPlayer:SetPoint("TOPLEFT", edtPlayerNormal, "BOTTOMLEFT", -20, -8)
-	txtPlayer:SetPoint("LEFT", ddPlayer, "RIGHT", -10, 4);
-	txtPlayer:SetText("Player Portrait Frame")
-	local cbTarget = CreateFrame("CheckButton", "gcbTarget", self.panel, "ChatConfigCheckButtonTemplate")
-cbTarget:SetScript("OnClick", function(self)
-		if self:GetChecked() then
-			UIDropDownMenu_DisableDropDown(gddTarget)
-			settings.dynamic[2] = true
-		else
-			UIDropDownMenu_EnableDropDown(gddTarget)
-			settings.dynamic[2] = false
-		end
-		UpdateTarget()
-		UIDropDownMenu_SetText(gddTarget, strings[settings.portrait[2]])
+	local cTargetNPCKeep = CheckBox("gcTargetNPCKeep", scrollChild, s.target_npc.keep, "Keep current dragons", "If a target already has a dragon frame, keep it but change texture source", {{"TOPLEFT", gcTargetNPCDynamic, "BOTTOMLEFT"}}, function()
+		s.target_npc.keep = gcTargetNPCKeep:GetChecked()
+		f:UpdateTarget()
 	end)
-	local ddTarget = createDropdown({name = "gddTarget", parent = self.panel, items = {"Normal", "Rare", "RareElite", "Elite"}, defaultVal = strings[settings.portrait[2]],
-	changeFunc = function(self)
-		for i, v in ipairs(strings) do
-			if self.value == v then
-				settings.portrait[2] = i
-				break
-			end
-		end
-		UpdateTextures()
+	local cTargetNPCFriendly = CheckBox("gcTargetNPCFriendly", scrollChild, s.target_npc.target["Friendly"], "Friendly", "Change portrait for friendly targets", {{"TOPLEFT", gcTargetNPCKeep, "BOTTOMLEFT"}}, function()
+		s.target_npc.target["Friendly"] = gcTargetNPCFriendly:GetChecked()
+		f:UpdateTarget()
+	end)
+	local cTargetNPCNeutral = CheckBox("gcTargetNPCNeutral", scrollChild, s.target_npc.target["Neutral"], "Neutral", "Change portrait for neutral targets", {{"LEFT", gtcTargetNPCFriendly, "RIGHT", 8, 0}}, function()
+		s.target_npc.target["Neutral"] = gcTargetNPCNeutral:GetChecked()
+		f:UpdateTarget()
+	end)
+	local cTargetNPCHostile = CheckBox("gcTargetNPCHostile", scrollChild, s.target_npc.target["Hostile"], "Hostile", "Change portrait for hostile targets", {{"LEFT", gtcTargetNPCNeutral, "RIGHT", 8, 0}}, function()
+		s.target_npc.target["Hostile"] = gcTargetNPCHostile:GetChecked()
+		f:UpdateTarget()
+	end)	
+	local cTargetNPCUnknown = CheckBox("gcTargetNPCUnknown", scrollChild, s.target_npc.unknown.enabled, "Unknown Level", "Change portrait for unknown level targets (another match must be enabled)", {{"LEFT", gtcTargetNPCHostile, "RIGHT", 8, 0}}, function()
+		s.target_npc.unknown.enabled = gcTargetNPCUnknown:GetChecked()
+		f:UpdateTarget()
+	end)
+	local dTargetNPCTextures = DropDown("gdTargetNPCTextures", scrollChild, "Texture source", {"Original", "High Resolution", "Dragonflight", "Original Black", "Dragonflight Black", "Custom"}, s.target_npc.texture, 140, {{"TOPLEFT", gcTargetNPCFriendly, "BOTTOMLEFT", -16, -4}}, function()
+		s.target_npc.texture = UIDropDownMenu_GetSelectedValue(gdTargetNPCTextures)
+		f:UpdateTarget()
+	end)
+	local dTargetNPCStatic = DropDown("gdTargetNPCStatic", scrollChild, "Portrait frame", {"Normal", "Rare", "RareElite", "Elite"}, s.target_npc.frame, 140, {{"TOPLEFT", gdTargetNPCTextures, "BOTTOMLEFT", 0, 0}}, function()
+		s.target_npc.frame = UIDropDownMenu_GetSelectedValue(gdTargetNPCStatic)
+		s.target_npc.dynamic = false
+		gcTargetNPCDynamic:SetChecked(false)
+		f:UpdateTarget()
+	end)
+	local dTargetNPCUnknown = DropDown("gdTargetNPCUnknown", scrollChild, "Unknown level portrait frame", {"Normal", "Rare", "RareElite", "Elite"}, s.target_npc.unknown.frame, 140, {{"TOPLEFT", gdTargetNPCStatic, "BOTTOMLEFT", 0, 0}}, function()
+		s.target_npc.unknown.frame = UIDropDownMenu_GetSelectedValue(gdTargetNPCUnknown)
+		f:UpdateTarget()
+	end)
+	local tTargetNPCLevels = Text("gtTargetNPCLevels", scrollChild, "Dynamic Settings", 14, nil, {{"TOPLEFT", gdTargetNPCUnknown, "BOTTOMLEFT", 16, -4}})
+	local dTargetNPCDynamic = DropDown("gdTargetNPCDynamic", scrollChild, "Portrait based on", {"Levels above player", "Target level"}, "Levels above player", 140, {{"TOPLEFT", gtTargetNPCLevels, "BOTTOMLEFT", -16, -8}}, function()
+		s.target_npc.based = UIDropDownMenu_GetSelectedValue(gdTargetNPCDynamic)
+		f:UpdateTarget()
+		f:UpdateLevels()
+	end)
+	local eTargetNPCNormal1 = EditBox("geTargetNPCNormal1", scrollChild, {{"TOPLEFT", gdTargetNPCDynamic, "BOTTOMLEFT", 24, 0}}, function()
+		Levels(geTargetNPCNormal1:GetText(), gtTargetNPCNormal, "target_npc", "Normal", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetNPCNormal2 = EditBox("geTargetNPCNormal2", scrollChild, {{"LEFT", geTargetNPCNormal1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetNPCNormal2:GetText(), gtTargetNPCNormal, "target_npc", "Normal", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetNPCNormal = Text("gtTargetNPCNormal", scrollChild, "Normal", nil, {1, 1, 1, 1}, {{"LEFT", eTargetNPCNormal2, "RIGHT", 4, 0}})
+	local eTargetNPCRare1 = EditBox("geTargetNPCRare1", scrollChild, {{"TOPLEFT", geTargetNPCNormal1, "BOTTOMLEFT"}}, function()
+		Levels(geTargetNPCRare1:GetText(), gtTargetNPCRare, "target_npc", "Rare", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetNPCRare2 = EditBox("geTargetNPCRare2", scrollChild, {{"LEFT", geTargetNPCRare1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetNPCRare2:GetText(), gtTargetNPCRare, "target_npc", "Rare", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetNPCRare = Text("gtTargetNPCRare", scrollChild, "Rare", nil, {1, 1, 1, 1}, {{"LEFT", eTargetNPCRare2, "RIGHT", 4, 0}})
+	local eTargetNPCRareElite1 = EditBox("geTargetNPCRareElite1", scrollChild, {{"TOPLEFT", geTargetNPCRare1, "BOTTOMLEFT"}}, function()
+		Levels(geTargetNPCRareElite1:GetText(), gtTargetNPCRareElite, "target_npc", "RareElite", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetNPCRareElite2 = EditBox("geTargetNPCRareElite2", scrollChild, {{"LEFT", geTargetNPCRareElite1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetNPCRareElite2:GetText(), gtTargetNPCRareElite, "target_npc", "RareElite", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetNPCRareElite = Text("gtTargetNPCRareElite", scrollChild, "RareElite", nil, {1, 1, 1, 1}, {{"LEFT", eTargetNPCRareElite2, "RIGHT", 4, 0}})
+	
+	local eTargetNPCElite1 = EditBox("geTargetNPCElite1", scrollChild, {{"TOPLEFT", geTargetNPCRareElite1, "BOTTOMLEFT"}}, function()
+		Levels(geTargetNPCElite1:GetText(), gtTargetNPCElite, "target_npc", "Elite", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetNPCElite2 = EditBox("geTargetNPCElite2", scrollChild, {{"LEFT", geTargetNPCElite1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetNPCElite2:GetText(), gtTargetNPCElite, "target_npc", "Elite", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetNPCElite = Text("gtTargetNPCElite", scrollChild, "Elite", nil, {1, 1, 1, 1}, {{"LEFT", eTargetNPCElite2, "RIGHT", 4, 0}})
+	local tTargetPlayer = Text("gtTargetPlayer", scrollChild, "Target Player Settings", 18, nil, {{"TOPLEFT", gbPlayer, "BOTTOMLEFT", 0, -8}})
+	local cTargetPlayerEnabled = CheckBox("gcTargetPlayerEnabled", scrollChild, s.target_player.enabled, "Enabled", "Enable portrait for target player", {{"TOPLEFT", gtTargetPlayer, "BOTTOMLEFT", 0, -8}}, function()
+		s.target_player.enabled = gcTargetPlayerEnabled:GetChecked()
+		f:UpdateTarget()
+	end)
+	local cTargetPlayerDynamic = CheckBox("gcTargetPlayerDynamic", scrollChild, s.target_player.dynamic, "Dynamic", "Change portrait dynamically based on level", {{"TOPLEFT", gcTargetPlayerEnabled, "BOTTOMLEFT"}}, function()
+		s.target_player.dynamic = gcTargetPlayerDynamic:GetChecked()
+		f:UpdateTarget()
+		UIDropDownMenu_SetSelectedValue(gdTargetPlayerStatic, s.target_player.frame)
+	end)
+	local cTargetPlayerKeep = CheckBox("gcTargetPlayerKeep", scrollChild, s.target_player.keep, "Keep current dragons", "If a target already has a dragon frame, keep it but change texture source", {{"TOPLEFT", gcTargetPlayerDynamic, "BOTTOMLEFT"}}, function()
+		s.target_player.keep = gcTargetPlayerKeep:GetChecked()
+		f:UpdateTarget()
+	end)
+	local cTargetPlayerFriendly = CheckBox("gcTargetPlayerFriendly", scrollChild, s.target_player.target["Friendly"], "Friendly", "Change portrait for friendly targets", {{"TOPLEFT", gcTargetPlayerKeep, "BOTTOMLEFT"}}, function()
+		s.target_player.target["Friendly"] = gcTargetPlayerFriendly:GetChecked()
+		f:UpdateTarget()
+	end)
+	local cTargetPlayerNeutral = CheckBox("gcTargetPlayerNeutral", scrollChild, s.target_player.target["Neutral"], "Neutral", "Change portrait for neutral targets", {{"LEFT", gtcTargetPlayerFriendly, "RIGHT", 8, 0}}, function()
+		s.target_player.target["Neutral"] = gcTargetPlayerNeutral:GetChecked()
+		f:UpdateTarget()
+	end)
+	local cTargetPlayerHostile = CheckBox("gcTargetPlayerHostile", scrollChild, s.target_player.target["Hostile"], "Hostile", "Change portrait for hostile targets", {{"LEFT", gtcTargetPlayerNeutral, "RIGHT", 8, 0}}, function()
+		s.target_player.target["Hostile"] = gcTargetPlayerHostile:GetChecked()
+		f:UpdateTarget()
+	end)	
+	local cTargetPlayerUnknown = CheckBox("gcTargetPlayerUnknown", scrollChild, s.target_player.unknown.enabled, "Unknown Level", "Change portrait for unknown level targets (another match must be enabled)", {{"LEFT", gtcTargetPlayerHostile, "RIGHT", 8, 0}}, function()
+		s.target_player.unknown.enabled = gcTargetPlayerUnknown:GetChecked()
+		f:UpdateTarget()
+	end)
+	local dTargetPlayerTextures = DropDown("gdTargetPlayerTextures", scrollChild, "Texture source", {"Original", "High Resolution", "Dragonflight", "Original Black", "Dragonflight Black", "Custom"}, s.target_player.texture, 140, {{"TOPLEFT", gcTargetPlayerFriendly, "BOTTOMLEFT", -16, -4}}, function()
+		s.target_player.texture = UIDropDownMenu_GetSelectedValue(gdTargetPlayerTextures)
+		f:UpdateTarget()
+	end)
+	local dTargetPlayerStatic = DropDown("gdTargetPlayerStatic", scrollChild, "Portrait frame", {"Normal", "Rare", "RareElite", "Elite"}, s.target_player.frame, 140, {{"TOPLEFT", gdTargetPlayerTextures, "BOTTOMLEFT", 0, 0}}, function()
+		s.target_player.frame = UIDropDownMenu_GetSelectedValue(gdTargetPlayerStatic)
+		s.target_player.dynamic = false
+		gcTargetPlayerDynamic:SetChecked(false)
+		f:UpdateTarget()
+	end)
+	local dTargetPlayerUnknown = DropDown("gdTargetPlayerUnknown", scrollChild, "Unknown level portrait frame", {"Normal", "Rare", "RareElite", "Elite"}, s.target_player.unknown.frame, 140, {{"TOPLEFT", gdTargetPlayerStatic, "BOTTOMLEFT", 0, 0}}, function()
+		s.target_player.unknown.frame = UIDropDownMenu_GetSelectedValue(gdTargetPlayerUnknown)
+		f:UpdateTarget()
+	end)
+	local tTargetPlayerLevels = Text("gtTargetPlayerLevels", scrollChild, "Dynamic Settings", 14, nil, {{"TOPLEFT", gdTargetPlayerUnknown, "BOTTOMLEFT", 16, -4}})
+	local dTargetPlayerDynamic = DropDown("gdTargetPlayerDynamic", scrollChild, "Portrait based on", {"Levels above player", "Target level"}, "Levels above player", 140, {{"TOPLEFT", gtTargetPlayerLevels, "BOTTOMLEFT", -16, -8}}, function()
+		s.target_player.based = UIDropDownMenu_GetSelectedValue(gdTargetPlayerDynamic)
+		f:UpdateTarget()
+		f:UpdateLevels()
+	end)
+	local eTargetPlayerNormal1 = EditBox("geTargetPlayerNormal1", scrollChild, {{"TOPLEFT", gdTargetPlayerDynamic, "BOTTOMLEFT", 24, 0}}, function()
+		Levels(geTargetPlayerNormal1:GetText(), gtTargetPlayerNormal, "target_player", "Normal", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetPlayerNormal2 = EditBox("geTargetPlayerNormal2", scrollChild, {{"LEFT", geTargetPlayerNormal1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetPlayerNormal2:GetText(), gtTargetPlayerNormal, "target_player", "Normal", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetPlayerNormal = Text("gtTargetPlayerNormal", scrollChild, "Normal", nil, {1, 1, 1, 1}, {{"LEFT", eTargetPlayerNormal2, "RIGHT", 4, 0}})
+	local eTargetPlayerRare1 = EditBox("geTargetPlayerRare1", scrollChild, {{"TOPLEFT", geTargetPlayerNormal1, "BOTTOMLEFT"}}, function()
+		Levels(geTargetPlayerRare1:GetText(), gtTargetPlayerRare, "target_player", "Rare", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetPlayerRare2 = EditBox("geTargetPlayerRare2", scrollChild, {{"LEFT", geTargetPlayerRare1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetPlayerRare2:GetText(), gtTargetPlayerRare, "target_player", "Rare", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetPlayerRare = Text("gtTargetPlayerRare", scrollChild, "Rare", nil, {1, 1, 1, 1}, {{"LEFT", eTargetPlayerRare2, "RIGHT", 4, 0}})
+	local eTargetPlayerRareElite1 = EditBox("geTargetPlayerRareElite1", scrollChild, {{"TOPLEFT", geTargetPlayerRare1, "BOTTOMLEFT"}}, function()
+		Levels(geTargetPlayerRareElite1:GetText(), gtTargetPlayerRareElite, "target_player", "RareElite", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetPlayerRareElite2 = EditBox("geTargetPlayerRareElite2", scrollChild, {{"LEFT", geTargetPlayerRareElite1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetPlayerRareElite2:GetText(), gtTargetPlayerRareElite, "target_player", "RareElite", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetPlayerRareElite = Text("gtTargetPlayerRareElite", scrollChild, "RareElite", nil, {1, 1, 1, 1}, {{"LEFT", eTargetPlayerRareElite2, "RIGHT", 4, 0}})
+	
+	local eTargetPlayerElite1 = EditBox("geTargetPlayerElite1", scrollChild, {{"TOPLEFT", geTargetPlayerRareElite1, "BOTTOMLEFT"}}, function()
+		Levels(geTargetPlayerElite1:GetText(), gtTargetPlayerElite, "target_player", "Elite", 1)
+		f:UpdateTarget()
+	end)
+	local eTargetPlayerElite2 = EditBox("geTargetPlayerElite2", scrollChild, {{"LEFT", geTargetPlayerElite1, "RIGHT", 8, 0}}, function()
+		Levels(geTargetPlayerElite2:GetText(), gtTargetPlayerElite, "target_player", "Elite", 2)
+		f:UpdateTarget()
+	end)
+	local tTargetPlayerElite = Text("gtTargetPlayerElite", scrollChild, "Elite", nil, {1, 1, 1, 1}, {{"LEFT", eTargetPlayerElite2, "RIGHT", 4, 0}})
+	player_settings = {
+		gtPlayer, gcPlayerEnabled, gcPlayerDynamic, gcPlayerMove, gdPlayerTextures, gdPlayerStatic, gtPlayerLevels, gePlayerNormal1, gePlayerNormal2, gePlayerRare1, gePlayerRare2, gePlayerRareElite1, gePlayerRareElite2, gePlayerElite1, gePlayerElite2, gtPlayerNormal, gtPlayerRare, gtPlayerRareElite, gtPlayerElite
+	}
+	targetnpc_settings = {
+		gtTargetNPC, gcTargetNPCEnabled, gcTargetNPCDynamic, gcTargetNPCKeep, gcTargetNPCFriendly, gcTargetNPCNeutral, gcTargetNPCHostile, gcTargetNPCUnknown, gdTargetNPCTextures, gdTargetNPCStatic, gdTargetNPCUnknown, gtTargetNPCLevels, gdTargetNPCDynamic, geTargetNPCNormal1, geTargetNPCNormal2, gtTargetNPCNormal, geTargetNPCRare1, geTargetNPCRare2, gtTargetNPCRare, geTargetNPCRareElite1, geTargetNPCRareElite2, gtTargetNPCRareElite, geTargetNPCElite1, geTargetNPCElite2, gtTargetNPCElite
+	}
+	targetplayer_settings = {
+		gtTargetPlayer, gcTargetPlayerEnabled, gcTargetPlayerDynamic, gcTargetPlayerKeep, gcTargetPlayerFriendly, gcTargetPlayerNeutral, gcTargetPlayerHostile, gcTargetPlayerUnknown, gdTargetPlayerTextures, gdTargetPlayerStatic, gdTargetPlayerUnknown, gtTargetPlayerLevels, gdTargetPlayerDynamic, geTargetPlayerNormal1, geTargetPlayerNormal2, gtTargetPlayerNormal, geTargetPlayerRare1, geTargetPlayerRare2, gtTargetPlayerRare, geTargetPlayerRareElite1, geTargetPlayerRareElite2, gtTargetPlayerRareElite, geTargetPlayerElite1, geTargetPlayerElite2, gtTargetPlayerElite
+	}
+	for i, v in ipairs(targetplayer_settings) do
+		v:Hide()
 	end
-	})
-	cbTarget:SetChecked(settings.dynamic[2])
-	if settings.dynamic[2] then
-		UIDropDownMenu_DisableDropDown(ddTarget)
-	else
-		UIDropDownMenu_EnableDropDown(ddTarget)
+	for i, v in ipairs(targetnpc_settings) do
+		v:Hide()
 	end
-	local txtTarget = self.panel:CreateFontString("gtxtTarget", "OVERLAY", "GameFontNormal");
-	local txtTargetDynamic = self.panel:CreateFontString("gtxtTargetDynamic", "OVERLAY", "GameFontNormal");
-	local txtTargetNormal = self.panel:CreateFontString("gtxtTargetNormal", "OVERLAY", "GameFontNormal");
-	local edtTargetNormal = CreateFrame("EditBox", "gedtTargetNormal", self.panel, "InputBoxTemplate")
-	edtTargetNormal:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtTargetNormal, 2, 1)
-		UpdateTarget()
-	end)
-	local txtTargetRare = self.panel:CreateFontString("gtxtTargetRare", "OVERLAY", "GameFontNormal");
-	local edtTargetRare = CreateFrame("EditBox", "gedtTargetRare", self.panel, "InputBoxTemplate")
-	edtTargetRare:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtTargetRare, 2, 2)
-		UpdateTarget()
-	end)
-	local txtTargetRareElite = self.panel:CreateFontString("gtxtTargetRareElite", "OVERLAY", "GameFontNormal");
-	local edtTargetRareElite = CreateFrame("EditBox", "gedtTargetRareElite", self.panel, "InputBoxTemplate")
-	edtTargetRareElite:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtTargetRareElite, 2, 3)
-		UpdateTarget()
-	end)
-	local txtTargetElite = self.panel:CreateFontString("gtxtTargetElite", "OVERLAY", "GameFontNormal");
-	local edtTargetElite = CreateFrame("EditBox", "gedtTargetElite", self.panel, "InputBoxTemplate")
-	edtTargetElite:SetScript("OnTextChanged", function(self)
-		InputValidation(self, txtTargetElite, 2, 4)
-		UpdateTarget()
-	end)
-	UIDropDownMenu_SetWidth(ddTarget, 140)
-	cbTarget:SetPoint("TOPLEFT", ddPlayer, "BOTTOMLEFT", 16, 0)
-	txtTargetDynamic:SetPoint("LEFT", cbTarget, "RIGHT", 0, 2)
-	txtTargetDynamic:SetText("Set dynamic target frame based on levels above the player")
-	txtTargetNormal:SetPoint("TOPLEFT", cbTarget, "BOTTOMLEFT", 0, -4)
-	txtTargetNormal:SetText("Normal("..settings.levels[1][2]..")")
-	txtTargetRare:SetPoint("LEFT", txtTargetNormal, "RIGHT", 12, 0)
-	txtTargetRare:SetText("Rare("..settings.levels[1][2]..")")
-	txtTargetRareElite:SetPoint("LEFT", txtTargetRare, "RIGHT", 12, 0)
-	txtTargetRareElite:SetText("RareElite("..settings.levels[1][3]..")")	
-	txtTargetElite:SetPoint("LEFT", txtTargetRareElite, "RIGHT", 12, 0)
-	txtTargetElite:SetText("Elite("..settings.levels[1][4]..")")	
-	edtTargetNormal:SetPoint("TOPLEFT", txtTargetNormal, "BOTTOMLEFT", 8, -8)
-	edtTargetNormal:SetSize(40, 20)
-	edtTargetNormal:SetAutoFocus(false)
-	edtTargetNormal:SetNumeric(true)
-	edtTargetNormal:SetMaxLetters(3)
-	edtTargetRare:SetPoint("TOPLEFT", txtTargetRare, "BOTTOMLEFT", 8, -8)
-	edtTargetRare:SetSize(40, 20)
-	edtTargetRare:SetAutoFocus(false)
-	edtTargetRare:SetNumeric(true)
-	edtTargetRare:SetMaxLetters(3)
-	edtTargetRareElite:SetPoint("TOPLEFT", txtTargetRareElite, "BOTTOMLEFT", 8, -8)
-	edtTargetRareElite:SetSize(40, 20)
-	edtTargetRareElite:SetAutoFocus(false)
-	edtTargetRareElite:SetNumeric(true)
-	edtTargetRareElite:SetMaxLetters(3)
-	edtTargetElite:SetPoint("TOPLEFT", txtTargetElite, "BOTTOMLEFT", 8, -8)
-	edtTargetElite:SetSize(40, 20)
-	edtTargetElite:SetAutoFocus(false)
-	edtTargetElite:SetNumeric(true)
-	edtTargetElite:SetMaxLetters(3)
-	ddTarget:SetPoint("TOPLEFT", edtTargetNormal, "BOTTOMLEFT", -24, -8)
-	txtTarget:SetPoint("LEFT", ddTarget, "RIGHT", -10, 4);
-	txtTarget:SetText("Target Portrait Frame")
-	local ddTargetNPC = createDropdown({name = "gddTargetNPC", parent = self.panel, items = {"Disabled", "Hostile Only", "Friendly Only", "Both"}, defaultVal = strings[settings.target[5] + 4],
-	changeFunc = function(self)
-		UpdateTargetSelect(self.value, 0, 0)
-		UpdateTarget()
-	end
-	})
-	local txtTargetNPC = self.panel:CreateFontString("gtxtTargetNPC", "OVERLAY", "GameFontNormal");
-	UIDropDownMenu_SetWidth(ddTargetNPC, 140)
-	ddTargetNPC:SetPoint("TOPLEFT", ddTarget, "BOTTOMLEFT", 0, 0)
-	txtTargetNPC:SetPoint("LEFT", ddTargetNPC, "RIGHT", -10, 4);
-	txtTargetNPC:SetText("NPC Target")
-	local ddTargetPlayer = createDropdown({name = "gddTargetPlayer", parent = self.panel, items = {"Disabled", "Hostile Only", "Friendly Only", "Both"}, defaultVal = strings[settings.target[6] + 4],
-	changeFunc = function(self)
-		UpdateTargetSelect(self.value, 1, 2)
-		UpdateTarget()
-	end
-	})
-	local txtTargetPlayer = self.panel:CreateFontString("gtxtTargetPlayer", "OVERLAY", "GameFontNormal");
-	UIDropDownMenu_SetWidth(ddTargetPlayer, 140)
-	ddTargetPlayer:SetPoint("TOPLEFT", ddTargetNPC, "BOTTOMLEFT", 0, 0)
-	txtTargetPlayer:SetPoint("LEFT", ddTargetPlayer, "RIGHT", -10, 4);
-	txtTargetPlayer:SetText("Player Target")
-	UpdateFields()
-	UpdatePlayer()
-	UpdateTarget()
+	f:UpdateLevels()
+	f:UpdatePlayer()
 	InterfaceOptions_AddCategory(self.panel)
 end
-f:SetScript("OnEvent", f.OnEvent)
-SLASH_DragonFrames1 = "/dragonframes"
-SlashCmdList["DragonFrames"] = function(value)
-	InterfaceOptionsFrame_OpenToCategory(f.panel)
+function f:UpdateLevels()
+	local p = UnitLevel("player")
+	if s.target_npc.based == "Levels above player" then
+		gvTargetNPCNormal = "Normal ("..s.target_npc.levels["Normal"][1].."-"..s.target_npc.levels["Normal"][2]..") Levels ("..s.target_npc.levels["Normal"][1] + p.."-"..s.target_npc.levels["Normal"][2] + p..")"
+		gvTargetNPCRare = "Rare ("..s.target_npc.levels["Rare"][1].."-"..s.target_npc.levels["Rare"][2]..") Levels ("..s.target_npc.levels["Rare"][1] + p.."-"..s.target_npc.levels["Rare"][2] + p..")"
+		gvTargetNPCRareElite = "RareElite ("..s.target_npc.levels["RareElite"][1].."-"..s.target_npc.levels["RareElite"][2]..") Levels ("..s.target_npc.levels["RareElite"][1] + p.."-"..s.target_npc.levels["RareElite"][2] + p..")"
+		gvTargetNPCElite = "Elite ("..s.target_npc.levels["Elite"][1].."-"..s.target_npc.levels["Elite"][2]..") Levels ("..s.target_npc.levels["Elite"][1] + p.."-"..s.target_npc.levels["Elite"][2] + p..")"
+	else
+		gvTargetNPCNormal = "Normal ("..s.target_npc.levels["Normal"][1].."-"..s.target_npc.levels["Normal"][2]..")"
+		gvTargetNPCRare = "Rare ("..s.target_npc.levels["Rare"][1].."-"..s.target_npc.levels["Rare"][2]..")"
+		gvTargetNPCRareElite = "RareElite ("..s.target_npc.levels["RareElite"][1].."-"..s.target_npc.levels["RareElite"][2]..")"
+		gvTargetNPCElite = "Elite ("..s.target_npc.levels["Elite"][1].."-"..s.target_npc.levels["Elite"][2]..")"
+	end
+	if s.target_player.based == "Levels above player" then
+		gvTargetPlayerNormal = "Normal ("..s.target_player.levels["Normal"][1].."-"..s.target_player.levels["Normal"][2]..") Levels ("..s.target_player.levels["Normal"][1] + p.."-"..s.target_player.levels["Normal"][2] + p..")"
+		gvTargetPlayerRare = "Rare ("..s.target_player.levels["Rare"][1].."-"..s.target_player.levels["Rare"][2]..") Levels ("..s.target_player.levels["Rare"][1] + p.."-"..s.target_player.levels["Rare"][2] + p..")"
+		gvTargetPlayerRareElite = "RareElite ("..s.target_player.levels["RareElite"][1].."-"..s.target_player.levels["RareElite"][2]..") Levels ("..s.target_player.levels["RareElite"][1] + p.."-"..s.target_player.levels["RareElite"][2] + p..")"
+		gvTargetPlayerElite = "Elite ("..s.target_player.levels["Elite"][1].."-"..s.target_player.levels["Elite"][2]..") Levels ("..s.target_player.levels["Elite"][1] + p.."-"..s.target_player.levels["Elite"][2] + p..")"
+	else
+		gvTargetPlayerNormal = "Normal ("..s.target_player.levels["Normal"][1].."-"..s.target_player.levels["Normal"][2]..")"
+		gvTargetPlayerRare = "Rare ("..s.target_player.levels["Rare"][1].."-"..s.target_player.levels["Rare"][2]..")"
+		gvTargetPlayerRareElite = "RareElite ("..s.target_player.levels["RareElite"][1].."-"..s.target_player.levels["RareElite"][2]..")"
+		gvTargetPlayerElite = "Elite ("..s.target_player.levels["Elite"][1].."-"..s.target_player.levels["Elite"][2]..")"
+	end
+	gtTargetNPCNormal:SetText(gvTargetNPCNormal)
+	gtTargetNPCRare:SetText(gvTargetNPCRare)
+	gtTargetNPCRareElite:SetText(gvTargetNPCRareElite)
+	gtTargetNPCElite:SetText(gvTargetNPCElite)
+	gtTargetPlayerNormal:SetText(gvTargetPlayerNormal)
+	gtTargetPlayerRare:SetText(gvTargetPlayerRare)
+	gtTargetPlayerRareElite:SetText(gvTargetPlayerRareElite)
+	gtTargetPlayerElite:SetText(gvTargetPlayerElite)
 end
-function InputValidation(input, text, x, y)
-	local n = input:GetText()
-	if n ~= "" then
-		n = tonumber(n)
-		if n > 255 then
-			n = 255
+function f:MovePortrait()
+	if s.enabled and s.player.enabled and s.player.move then
+		local offset
+		if s.player.frame == "RareElite" or s.player.frame == "Elite" then
+			if s.player.texture == "Dragonflight" or s.player.texture == "Dragonflight Black" then
+				offset = player_rx + 18
+			else
+				offset = player_rx + 20
+			end
+		elseif s.player.frame == "Rare" then
+			if s.player.texture == "Dragonflight" or s.player.texture == "Dragonflight Black" then
+				offset = player_rx
+			else
+				offset = player_rx + 3
+			end
+		else
+			offset = player_rx
 		end
-		settings.levels[x][y] = n
-		text:SetText(strings[y].."("..settings.levels[x][y]..")")
+		if gcPlayerMove:GetChecked() then
+			PlayerFrame:ClearAllPoints()
+			PlayerFrame:SetPoint(player_p, player_rt, player_rp, offset, player_ry)
+		else
+			PlayerFrame:ClearAllPoints()
+			PlayerFrame:SetPoint(player_p, player_rt, player_rp, player_rx, player_ry)
+		end
+	else
+		PlayerFrame:ClearAllPoints()
+		PlayerFrame:SetPoint(player_p, player_rt, player_rp, player_rx, player_ry)
 	end
 end
-function UpdateTextures()
-	UpdatePlayer()
-	UpdateTarget()
-end
-function UpdateFields()
-	gtxtPlayerNormal:SetText("Normal("..settings.levels[1][1]..")")
-	gtxtPlayerRare:SetText("Rare("..settings.levels[1][2]..")")
-	gtxtPlayerRareElite:SetText("RareElite("..settings.levels[1][3]..")")
-	gtxtPlayerElite:SetText("Elite("..settings.levels[1][4]..")")
-	gtxtTargetNormal:SetText("Normal("..settings.levels[2][1]..")")
-	gtxtTargetRare:SetText("Rare("..settings.levels[2][2]..")")
-	gtxtTargetRareElite:SetText("RareElite("..settings.levels[2][3]..")")
-	gtxtTargetElite:SetText("Elite("..settings.levels[2][4]..")")
-end
-function UpdateTargetSelect(dropdown, offset, selection)
-	local index = 5 + offset
-	local enemy = 1 + selection
-	local friend = 2 + selection
-	for i, v in ipairs(strings) do
-		if dropdown == v then
-			settings.target[index] = i - 4
-			break
+function f:UpdatePlayer(l)
+	local t = s.player
+	if s.enabled and t.enabled then
+		if not l then
+			l = UnitLevel("player")
 		end
-		settings.target[index] = i - 4
+		if t.dynamic then
+			for k, v in pairs(t.levels) do
+				if l >= v[1] and l <= v[2] then
+					t.frame = k
+					break
+				end
+				t.frame = "Normal"
+			end
+		else
+			t.frame = UIDropDownMenu_GetSelectedValue(gdPlayerStatic)
+		end
+		PlayerFrameTexture:SetTexture(textures[t.texture][t.frame])
 	end
-	local lookup = {
-		{ false, false },
-		{ true, false },
-		{ false, true },
-		{ true, true }
-	}
-	settings.target[enemy] = lookup[settings.target[index]][1]
-	settings.target[friend] = lookup[settings.target[index]][2]
+	f:MovePortrait()
 end
-function UpdateTarget()
-	if UnitExists("target") then
-		level = UnitLevel("target")
-		playerlevel = UnitLevel("player")
-		settings.target[1] = settings.target[5] == 2 or settings.target[5] == 4
-		settings.target[2] = settings.target[5] == 3 or settings.target[5] == 4
-		settings.target[3] = settings.target[6] == 2 or settings.target[6] == 4
-		settings.target[4] = settings.target[6] == 3 or settings.target[6] == 3
-		npc_enemy = (not UnitIsPlayer("target") and UnitIsEnemy("player", "target") and settings.target[1])
-		npc_friend = (not UnitIsPlayer("target") and not UnitIsEnemy("player", "target") and settings.target[2])
-		player_enemy = (UnitIsPlayer("target") and UnitIsEnemy("player", "target") and settings.target[3])
-		player_friend = (UnitIsPlayer("target") and not UnitIsEnemy("player", "target") and settings.target[4])
-		if npc_enemy or npc_friend or player_enemy or player_friend then
-			if settings.dynamic[2] then
-				if level < 1 then
-					settings.portrait[2] = 4
-				else
-					for i, v in ipairs(settings.levels[2]) do
-						if i <= 3 then
-							if level >= playerlevel + v and level < playerlevel + settings.levels[2][i + 1] then
-								settings.portrait[2] = i
-								break
-							end
-						else
-							if level >= playerlevel + v then
-								settings.portrait[2] = 4
-								break
-							end
-						end
-						settings.portrait[2] = 1
+function f:Target(t)
+	local l = UnitLevel("target")
+	local p = UnitLevel("player")
+	local dragon
+	local match
+	if t.keep then
+		local r = UnitClassification("target")
+		if r == "normal" or r == "trivial" or r == "minus" then
+			dragon = nil
+		end
+		if r == "rare" then
+			dragon = "Rare"
+		elseif r == "rarelite" then
+			dragon = "RareElite"
+		elseif r == "elite" then
+			dragon = "Elite"
+		elseif r == "worldboss" then
+			dragon = "Elite"
+		end
+	else
+		dragon = nil
+	end
+	if l > -1 then
+		if t.dynamic then
+			if t.based == "Levels above player" then
+				for k, v in pairs(t.levels) do
+					if l >= p + v[1] and l <= p + v[2] then
+						t.frame = k
+						match = true
+						break
+					end
+				end
+			elseif t.based == "Target level" then
+				for k, v in pairs(t.levels) do
+					if l >= v[1] and l <= v[2] then
+						t.frame = k
+						match = true
+						break
 					end
 				end
 			end
-			TargetFrame.borderTexture:SetTexture(textures[settings.source][settings.portrait[2]])
+		else
+			match = true
 		end
-	end
-end
-function UpdatePlayer(level)
-	if settings.dynamic[1] then
-		if level == nil then
-			level = UnitLevel("player")
+		if match and not dragon then
+			TargetFrame.borderTexture:SetTexture(textures[t.texture][t.frame])
+		elseif dragon then
+			TargetFrame.borderTexture:SetTexture(textures[t.texture][dragon])
+		else
+			TargetFrame.borderTexture:SetTexture(target_texture)
 		end
-		for i, v in ipairs(settings.levels[1]) do
-			if level < v then
-				settings.portrait[1] = i
-				break
+	else
+		if t.keep then
+			TargetFrame.borderTexture:SetTexture(textures[t.texture]["Elite"])
+		else
+			if t.unknown.enabled then
+				TargetFrame.borderTexture:SetTexture(textures[t.texture][t.unknown.frame])
+			else
+				TargetFrame.borderTexture:SetTexture(target_texture)
 			end
-			settings.portrait[1] = 4
 		end
 	end
-	PlayerFrameTexture:SetTexture(textures[settings.source][settings.portrait[1]])
 end
---Code below found on internet, cannot remember the source. Could've rewrote it, but wow's ui api is garbage / thanks object orientation
-function createDropdown(opts)
-	local dropdown_name = opts['name']
-	local menu_items = opts['items'] or {}
-	local title_text = opts['title'] or ''
-	local dropdown_width = 0
-	local default_val = opts['defaultVal'] or ''
-	local change_func = opts['changeFunc'] or function (dropdown_val) end
-	local dropdown = CreateFrame("Frame", dropdown_name, opts['parent'], 'UIDropDownMenuTemplate')
-	local dd_title = dropdown:CreateFontString(dropdown, 'OVERLAY', 'GameFontNormal')
-	dd_title:SetPoint("TOPLEFT", 20, 10)
-	for _, item in pairs(menu_items) do
-		dd_title:SetText(item)
-		local text_width = dd_title:GetStringWidth() + 20
-		if text_width > dropdown_width then
-			dropdown_width = text_width
+function f:UpdateTarget()
+	local relation
+	local player
+	if UnitExists("target") and s.enabled then
+		player = UnitIsPlayer("target")
+		if UnitIsFriend("player", "target") then
+			relation = "Friendly"
+		else
+			if UnitIsEnemy("player", "target") then
+				relation = "Hostile"
+			else
+				relation = "Neutral"
+			end
+		end
+		if not player and s.target_npc.target[relation] and s.target_npc.enabled then
+			f:Target(s.target_npc)
+		elseif player and s.target_player.target[relation] and s.target_player.enabled then
+			f:Target(s.target_player)
+		else
+			TargetFrame.borderTexture:SetTexture(target_texture)
 		end
 	end
-	UIDropDownMenu_SetWidth(dropdown, dropdown_width)
-	UIDropDownMenu_SetText(dropdown, default_val)
-	dd_title:SetText(title_text)
-	UIDropDownMenu_Initialize(dropdown, function(self, level, _)
-	local info = UIDropDownMenu_CreateInfo()
-	for key, val in pairs(menu_items) do
-		info.text = val;
-		info.checked = false
-		info.menuList= key
-		info.hasArrow = false
-		info.func = function(b)
-			UIDropDownMenu_SetSelectedValue(dropdown, b.value, b.value)
-			UIDropDownMenu_SetText(dropdown, b.value)
-			change_func(b)
-		end
-		UIDropDownMenu_AddButton(info)
-		end
-	end)
-	return dropdown
 end
+SLASH_DragonFrames1 = "/dragonframes"
+SlashCmdList["DragonFrames"] = function(v)
+	InterfaceOptionsFrame_OpenToCategory(f.panel)
+end
+f:SetScript("OnEvent", f.OnEvent)
