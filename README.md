@@ -8,7 +8,7 @@ Includes ai-upscaled default and dragonflight textues.
 Code is really bad, first addon and documenation is scarce. this is a rough draft. 
 
 ![Options](options.png?raw=true)
-![Frames](frames.png?raw=true)
+![Frames](example.png?raw=true)
 
 Version 1.0.0 (3/18/2023)
 
@@ -25,3 +25,11 @@ Version 1.1.0 (3/19/2023)
 Version 1.2.0 (3/19/2023)
 
 -Removed some debug code
+
+
+Version 2.0.0 (3/20/2023)
+
+-Complete rewrite
+-Added several new options
+-Added ability to use custom textures in textures/custom
+-Cleaner code but still not best
