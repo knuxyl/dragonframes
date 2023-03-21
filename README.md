@@ -2,10 +2,7 @@
 World of Warcraft 3.3.5a Addon
 
 Statically change your player's and/or your target's portrait frame to a rare/elite, or dynamically by level.
-
-Includes ai-upscaled default and dragonflight textues.
-
-Code is really bad, first addon and documenation is scarce. this is a rough draft. 
+Includes high resolution original textures, dragonflights textures, and blacked out textures. Also the ability to add your own.
 
 ![Options](options.png?raw=true)
 ![Frames](example.png?raw=true)
