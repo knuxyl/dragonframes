@@ -4,7 +4,7 @@ f:RegisterEvent("PLAYER_LEVEL_UP")
 f:RegisterEvent("PLAYER_TARGET_CHANGED")
 local title = "DragonFrames"
 local author = "knuxyl"
-local version = "2.0.0 (3/20/2023)"
+local version = "2.0.1 (3/20/2023)"
 local command = "dragonframes"
 local target_texture
 local player_texture
