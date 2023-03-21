@@ -31,5 +31,3 @@ Version 2.0.0 (3/20/2023)
 -Added several new options
 
 -Added ability to use custom textures in textures/custom
-
--Cleaner code but still not best
