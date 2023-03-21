@@ -696,8 +696,8 @@ function f:Target(t)
 			TargetFrame.borderTexture:SetTexture(target_texture)
 		end
 	else
-		if t.keep then
-			TargetFrame.borderTexture:SetTexture(textures[t.texture]["Elite"])
+		if t.keep and dragon then
+			TargetFrame.borderTexture:SetTexture(textures[t.texture][dragon])
 		else
 			if t.unknown.enabled then
 				TargetFrame.borderTexture:SetTexture(textures[t.texture][t.unknown.frame])
